@@ -1,3 +1,7 @@
+"""
+This module implements a Flask server for an emotion detection application.
+It provides endpoints to analyze text emotions and render the home user interface.
+"""
 from flask import Flask, render_template, request
 from EmotionDetection.emotion_detection import emotion_detector
 
@@ -6,33 +10,35 @@ app = Flask(__name__)
 @app.route("/emotionDetector")
 def sent_detector():
     """
-    Retrieves text from the frontend request, passes it to the emotion detector,
-    and returns a formatted string containing the breakdown of emotion scores.
+    Analyzes the input text for emotions and returns a formatted string response.
+    Handles blank inputs by validating the dominant emotion attribute.
     """
-
     text_to_analyze = request.args.get('textToAnalyze')
     response = emotion_detector(text_to_analyze)
-    
+    dominant_emotion = response['dominant_emotion']
+
+    if dominant_emotion is None:
+        return "Invalid text! Please try again!"
+
     anger = response['anger']
     disgust = response['disgust']
     fear = response['fear']
     joy = response['joy']
     sadness = response['sadness']
-    dominant_emotion = response['dominant_emotion']
-    
+
     formatted_response = (
         f"For the given statement, the system response is "
         f"'anger': {anger}, 'disgust': {disgust}, 'fear': {fear}, "
         f"'joy': {joy} and 'sadness': {sadness}. "
         f"The dominant emotion is {dominant_emotion}."
     )
-    
+
     return formatted_response
 
 @app.route("/")
 def render_index_page():
     """
-    Renders the main application page using the provided index.html template.
+    Renders the index.html home interface page for the web application.
     """
     return render_template('index.html')
 
